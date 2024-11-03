@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from "@/lib/utils"
@@ -13,7 +13,6 @@ import {
   Users,
   ClipboardCheck,
   FileText,
-  User,
   Settings,
   Bell,
   BarChart2,
@@ -22,22 +21,30 @@ import {
   ShieldCheck,
   List,
   Sun,
-  Moon
+  Moon,
+  Building,
+  Vote,
+  UserCheck,
+  Award,
+  Inbox,
+  AlertTriangle,
+  FileBarChart,
+  Activity
 } from 'lucide-react'
 
 const sidebarLinks = [
   { href: "/dashboard", icon: Home, label: "Dashboard" },
-  { href: "/dashboard/organization", icon: Users, label: "Organizations" },
-  { href: "/dashboard/contact-persons", icon: User, label: "Contact Persons" },
-  { href: "/dashboard/subscriptions", icon: ClipboardCheck, label: "Subscriptions" },
-  { href: "/dashboard/voting-sessions", icon: List, label: "Voting Sessions" },
-  { href: "/dashboard/positions", icon: List, label: "Positions" },
-  { href: "/dashboard/candidates", icon: FileText, label: "Candidates" },
+  { href: "/dashboard/organization", icon: Building, label: "Organizations" },
+  { href: "/dashboard/subscription-plans", icon: ClipboardCheck, label: "Subscription Plans" },
+  { href: "/dashboard/voting-sessions", icon: Vote, label: "Voting Sessions" },
+  { href: "/dashboard/positions", icon: Award, label: "Positions" },
+  { href: "/dashboard/candidates", icon: UserCheck, label: "Candidates" },
   { href: "/dashboard/voters", icon: Users, label: "Voters" },
-  { href: "/dashboard/reports", icon: BarChart2, label: "Reports" },
-  { href: "/dashboard/activity-log", icon: MessageSquare, label: "Activity Log" },
+  { href: "/dashboard/ballots", icon: FileText, label: "Ballots" },
   { href: "/dashboard/notifications", icon: Bell, label: "Notifications" },
-  { href: "/dashboard/feedbacks", icon: HelpCircle, label: "Feedbacks" },
+  { href: "/dashboard/feedback", icon: MessageSquare, label: "Feedback" },
+  { href: "/dashboard/reports", icon: FileBarChart, label: "Reports" },
+  { href: "/dashboard/audit-logs", icon: Activity, label: "Audit Logs" },
   { href: "/dashboard/settings", icon: Settings, label: "Settings" },
 ]
 
@@ -46,13 +53,24 @@ export function Sidebar() {
   const [isDarkMode, setIsDarkMode] = useState(false)
   const pathname = usePathname()
 
+  useEffect(() => {
+    const isDark = localStorage.getItem('darkMode') === 'true'
+    setIsDarkMode(isDark)
+    document.documentElement.classList.toggle('dark', isDark)
+  }, [])
+
   const toggleSidebar = () => setIsOpen(!isOpen)
-  const toggleTheme = () => setIsDarkMode(!isDarkMode)
+  const toggleTheme = () => {
+    const newDarkMode = !isDarkMode
+    setIsDarkMode(newDarkMode)
+    localStorage.setItem('darkMode', newDarkMode.toString())
+    document.documentElement.classList.toggle('dark', newDarkMode)
+  }
 
   return (
     <div className={cn(
       "flex flex-col h-screen border-r transition-all duration-300",
-      isDarkMode ? "bg-gray-900 text-gray-100" : "bg-white text-gray-900",
+      "bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100",
       isOpen ? "w-64" : "w-[70px]"
     )}>
       <div className="p-4 flex justify-between items-center border-b">
@@ -60,12 +78,9 @@ export function Sidebar() {
           <Menu className="h-6 w-6" />
         </Button>
         {isOpen && <h2 className="text-2xl font-semibold">I-CAST</h2>}
-        <Button variant="ghost" size="icon" onClick={toggleTheme} aria-label="Toggle theme">
-          {isDarkMode ? <Sun className="h-6 w-6" /> : <Moon className="h-6 w-6" />}
-        </Button>
       </div>
       <ScrollArea className="flex-1 mt-2">
-        <nav className="space-y-1">
+        <nav className="space-y-1 px-2">
           {sidebarLinks.map((link) => (
             <TooltipProvider key={link.href}>
               <Tooltip>
@@ -73,15 +88,15 @@ export function Sidebar() {
                   <Link
                     href={link.href}
                     className={cn(
-                      "flex items-center space-x-3 px-4 py-3 rounded-md transition-colors",
+                      "flex items-center space-x-3 px-3 py-2 rounded-md transition-colors",
                       pathname === link.href
                         ? "bg-primary text-primary-foreground font-medium"
                         : "hover:bg-secondary hover:text-secondary-foreground text-muted-foreground",
                       !isOpen && "justify-center"
                     )}
                   >
-                    <link.icon className="h-5 w-5" />
-                    {isOpen && <span>{link.label}</span>}
+                    <link.icon className="h-5 w-5 flex-shrink-0" />
+                    {isOpen && <span className="text-sm">{link.label}</span>}
                   </Link>
                 </TooltipTrigger>
                 <TooltipContent side="right" className={cn("bg-popover text-popover-foreground", isOpen && "hidden")}>
@@ -92,9 +107,19 @@ export function Sidebar() {
           ))}
         </nav>
       </ScrollArea>
-      <div className="p-4 border-t text-center">
-        <Button variant="ghost" onClick={toggleTheme} className="w-full">
-          {isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+      <div className="p-4 border-t">
+        <Button variant="ghost" size="sm" onClick={toggleTheme} className="w-full justify-start">
+          {isDarkMode ? (
+            <>
+              <Sun className="h-4 w-4 mr-2" />
+              {isOpen && "Light Mode"}
+            </>
+          ) : (
+            <>
+              <Moon className="h-4 w-4 mr-2" />
+              {isOpen && "Dark Mode"}
+            </>
+          )}
         </Button>
       </div>
     </div>

@@ -15,7 +15,7 @@ import {
 } from "../ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar"
 
-export function DashboardHeader() {
+export function Header() {
   const [searchQuery, setSearchQuery] = useState('')
   const [darkMode, setDarkMode] = useState(false)
 
@@ -117,4 +117,4 @@ export function DashboardHeader() {
   )
 }
 
-export default DashboardHeader
+export default Header

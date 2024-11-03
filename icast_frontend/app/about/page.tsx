@@ -5,6 +5,7 @@ import TeamMember from '../components/about/team-members';
 import TestimonialCard from '../components/about/testimonial-card';
 import Header from '../components/layouts/Header'; // Ensure you have a Header component
 import Footer from '../components/layouts/Footer'; // Ensure you have a Footer component
+import Link from 'next/link';
 
 const AboutPage: React.FC = () => {
   const teamMembers = [
@@ -63,12 +64,12 @@ const AboutPage: React.FC = () => {
         <section className="py-16 text-center bg-gray-200 dark:bg-gray-800 rounded-lg p-8 shadow-md">
           <h2 className="text-4xl font-bold mb-4">Ready to get started?</h2>
           <p className="mb-8 text-lg">Experience the future of online voting with I-CAST.</p>
-          <a 
+          <Link 
             href="/register" 
             className="bg-primary text-primary-foreground px-8 py-4 rounded-lg font-semibold hover:bg-primary/90 transition-colors"
           >
             Sign Up Now
-          </a>
+          </Link>
         </section>
       </div>
       <Footer />

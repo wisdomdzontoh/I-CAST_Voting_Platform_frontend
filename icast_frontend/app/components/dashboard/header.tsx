@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Bell, Search, User, Settings, LogOut, Menu } from 'lucide-react'
 import { Input } from "../../components/ui/input"
@@ -19,6 +20,7 @@ import { cn } from "@/lib/utils"
 export function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [isScrolled, setIsScrolled] = useState(false)
+  const router = useRouter()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -32,6 +34,12 @@ export function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
     console.log('Searching for:', searchQuery)
+  }
+
+  const handleLogout = () => {
+    // Clear the authentication token or session data
+    localStorage.removeItem('authToken') // Or the relevant storage key for the token
+    router.push('/login') // Redirect to login page after logout
   }
 
   return (
@@ -92,7 +100,7 @@ export function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
                 <span>Settings</span>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
                 <LogOut className="mr-2 h-4 w-4" />
                 <span>Log out</span>
               </DropdownMenuItem>

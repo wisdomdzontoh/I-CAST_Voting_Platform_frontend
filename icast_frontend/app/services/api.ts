@@ -97,3 +97,107 @@ export const login = async (username: string, password: string) => {
     handleApiError('Error logging in:', error, 'Invalid credentials. Please try again.');
   }
 };
+
+// Register function
+export const register = async (formData: { first_name: string; last_name: string; username: string; email: string; password: string }) => {
+  try {
+    const response = await api.post('/register/', formData);
+    toast.success('Registration successful! Please log in.');
+    return response.data;
+  } catch (error) {
+    throw error.response?.data?.message || 'Registration failed. Please try again.';
+  }
+};
+
+// Create Organization
+export const createOrganization = async (data: {
+  name: string,
+  organization_type: string,
+  email: string,
+  address: string,
+  phone_number?: string,
+  website?: string,
+  domain?: string,
+  logo?: File
+}) => {
+  const formData = new FormData();
+  for (const key in data) {
+    if (data[key] !== undefined) {
+      formData.append(key, data[key as keyof typeof data]);
+    }
+  }
+
+  const response = await api.post(`/organizations/`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+  return response.data;
+};
+
+// Read (Get) Organization by ID
+export const getOrganization = async (id: number) => {
+  const response = await api.get(`/organizations/${id}/`);
+  return response.data;
+};
+
+// Update Organization
+export const updateOrganization = async (id: number, data: {
+  name?: string,
+  organization_type?: string,
+  email?: string,
+  address?: string,
+  phone_number?: string,
+  website?: string,
+  domain?: string,
+  logo?: File
+}) => {
+  const formData = new FormData();
+  for (const key in data) {
+    if (data[key] !== undefined) {
+      formData.append(key, data[key as keyof typeof data]);
+    }
+  }
+
+  const response = await api.put(`/organizations/${id}/`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  });
+  return response.data;
+};
+
+// Delete Organization
+export const deleteOrganization = async (id: number) => {
+  const response = await api.delete(`/organizations/${id}/`);
+  return response.data;
+};
+
+// List all Organizations
+export const listOrganizations = async () => {
+  const response = await api.get(`/organizations/`);
+  return response.data;
+};
+
+// Fetch Subscription Plans
+export const fetchSubscriptionPlans = async () => {
+  const response = await api.get('/subscription-plans/');
+  return response.data;
+};
+
+// Export API service functions
+const apiService = {
+  login,
+  logout,
+  listOrganizations,
+  createOrganization,
+  deleteOrganization,
+  updateOrganization,
+  getOrganization,
+  setAuthToken,
+  initializeAuth,
+  refreshToken,
+  fetchSubscriptionPlans,
+};
+
+export default apiService;

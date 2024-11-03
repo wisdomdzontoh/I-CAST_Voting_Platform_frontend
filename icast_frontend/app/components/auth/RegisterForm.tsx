@@ -1,11 +1,9 @@
-// RegisterForm.tsx
-
 'use client';
 
 import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import api from '../../services/api'; // Update this path as necessary
+import { register } from '../../services/api'; // Import the register function here
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
@@ -38,12 +36,10 @@ const RegisterForm = () => {
         password,
       };
 
-      await api.post('/register/', formData); // Update with the correct endpoint
-      toast.success('Registration successful! Please log in.'); // Show success message
+      await register(formData); // Call the register function
       router.push('/login'); // Redirect to the login page
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Registration failed. Please try again.';
-      setError(errorMessage);
+      setError(error as string);
     } finally {
       setIsLoading(false);
     }

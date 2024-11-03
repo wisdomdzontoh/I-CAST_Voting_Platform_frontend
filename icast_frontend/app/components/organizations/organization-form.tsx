@@ -4,7 +4,7 @@ import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
 import { cn } from "@/lib/utils";
-import { fetchSubscriptionPlans } from '../../services/api'; // Adjust import based on your structure
+import { fetchSubscriptionPlans } from '../../services/api';
 
 interface OrganizationFormProps {
   organization?: {
@@ -16,15 +16,15 @@ interface OrganizationFormProps {
     phone_number: string;
     website: string;
     domain: string;
-    logo?: string; // Optional for editing
+    logo?: string;
     subscription_plan: string | null;
   };
-  onSubmit: (data: any) => void;
+  onSubmit: (data: FormData) => void;
   onCancel: () => void;
 }
 
 export function OrganizationForm({ organization, onSubmit, onCancel }: OrganizationFormProps) {
-  const [formData, setFormData] = useState(() => ({
+  const [formData, setFormData] = useState({
     name: '',
     organization_type: '',
     email: '',
@@ -34,15 +34,13 @@ export function OrganizationForm({ organization, onSubmit, onCancel }: Organizat
     domain: '',
     logo: null,
     subscription_plan: ''
-  }));
+  });
 
   const [subscriptionPlans, setSubscriptionPlans] = useState<{ id: string; name: string }[]>([]);
 
-  // Set form data for editing if organization is provided
   useEffect(() => {
     if (organization) {
       setFormData({
-        id: organization.id,
         name: organization.name,
         organization_type: organization.organization_type,
         email: organization.email,
@@ -56,11 +54,10 @@ export function OrganizationForm({ organization, onSubmit, onCancel }: Organizat
     }
   }, [organization]);
 
-  // Fetch subscription plans when component mounts
   useEffect(() => {
     const fetchPlans = async () => {
       try {
-        const plans = await fetchSubscriptionPlans(); // Use the new function
+        const plans = await fetchSubscriptionPlans();
         setSubscriptionPlans(plans);
       } catch (error) {
         console.error('Error fetching subscription plans:', error);
@@ -84,7 +81,9 @@ export function OrganizationForm({ organization, onSubmit, onCancel }: Organizat
     e.preventDefault();
     const submitData = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
-      submitData.append(key, value);
+      if (value) {
+        submitData.append(key, value);
+      }
     });
     onSubmit(submitData);
   };

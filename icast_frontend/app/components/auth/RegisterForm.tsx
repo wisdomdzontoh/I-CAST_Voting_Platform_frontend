@@ -2,9 +2,16 @@
 
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '../../services/api'; // Update this path as necessary
+import { Button } from "../../components/ui/button";
+import { Input } from "../../components/ui/input";
+import { Label } from "../../components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../../components/ui/card";
+import { Alert, AlertDescription } from "../../components/ui/alert";
+import { Loader2 } from "lucide-react";
 import { toast } from 'react-toastify';
 
 const RegisterForm = () => {
@@ -13,134 +20,147 @@ const RegisterForm = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
     setIsLoading(true);
 
     try {
       const formData = {
-        first_name: firstName, // Ensure these field names match your Django backend
+        first_name: firstName,
         last_name: lastName,
         username,
         email,
         password,
       };
 
-      const response = await api.post('/register/', formData); // Update with the correct endpoint
+      await api.post('/register/', formData); // Update with the correct endpoint
       toast.success('Registration successful! Please log in.'); // Show success message
       router.push('/login'); // Redirect to the login page
     } catch (error) {
-      // Handle error and show a toast notification
       const errorMessage = error.response?.data?.message || 'Registration failed. Please try again.';
-      toast.error(errorMessage);
+      setError(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-      <div className="rounded-md shadow-sm -space-y-px">
-        {/* First Name Field */}
-        <div>
-          <label htmlFor="first_name" className="sr-only">First Name</label>
-          <input
-            id="first_name"
-            name="first_name"
-            type="text"
-            required
-            className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-gray-200 bg-gray-900 rounded-t-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            placeholder="First Name"
-            value={firstName}
-            onChange={(e) => setFirstName(e.target.value)}
-          />
-        </div>
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader className="space-y-1">
+        <CardTitle className="text-2xl font-bold">Sign Up</CardTitle>
+        <CardDescription>Fill in the details to create an account</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* First Row: First Name and Last Name */}
+          <div className="flex space-x-4">
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="first_name">First Name</Label>
+              <Input
+                id="first_name"
+                name="first_name"
+                type="text"
+                required
+                placeholder="Enter your first name"
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+            </div>
+            <div className="flex-1 space-y-2">
+              <Label htmlFor="last_name">Last Name</Label>
+              <Input
+                id="last_name"
+                name="last_name"
+                type="text"
+                required
+                placeholder="Enter your last name"
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+            </div>
+          </div>
 
-        {/* Last Name Field */}
-        <div>
-          <label htmlFor="last_name" className="sr-only">Last Name</label>
-          <input
-            id="last_name"
-            name="last_name"
-            type="text"
-            required
-            className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-gray-200 bg-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            placeholder="Last Name"
-            value={lastName}
-            onChange={(e) => setLastName(e.target.value)}
-          />
-        </div>
+          {/* Second Row: Username */}
+          <div className="space-y-2">
+            <Label htmlFor="username">Username</Label>
+            <Input
+              id="username"
+              name="username"
+              type="text"
+              required
+              placeholder="Enter your username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+            />
+          </div>
 
-        {/* Username Field */}
-        <div>
-          <label htmlFor="username" className="sr-only">Username</label>
-          <input
-            id="username"
-            name="username"
-            type="text"
-            required
-            className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-gray-200 bg-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-          />
-        </div>
+          {/* Third Row: Email */}
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              required
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
+          </div>
 
-        {/* Email Field */}
-        <div>
-          <label htmlFor="email" className="sr-only">Email</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-gray-200 bg-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
+          {/* Fourth Row: Password */}
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              name="password"
+              type="password"
+              required
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+          </div>
 
-        {/* Password Field */}
-        <div>
-          <label htmlFor="password" className="sr-only">Password</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            required
-            className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-600 placeholder-gray-400 text-gray-200 bg-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
-
-        
-      </div>
-
-      <div>
-        <button
-          type="submit"
-          disabled={isLoading}
-          className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out"
-        >
-          {isLoading ? (
-            <span className="absolute left-0 inset-y-0 flex items-center pl-3">
-              <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-              </svg>
-            </span>
-          ) : (
-            'Register'
+          {/* Error Alert */}
+          {error && (
+            <Alert variant="destructive">
+              <AlertDescription>{error}</AlertDescription>
+            </Alert>
           )}
-        </button>
-      </div>
-    </form>
+
+          {/* Submit Button */}
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Signing up...
+              </>
+            ) : (
+              'Sign Up'
+            )}
+          </Button>
+        </form>
+      </CardContent>
+      <CardFooter className="flex flex-col items-center space-y-2">
+        <p className="text-sm text-muted-foreground text-center">
+          Already have an account?{' '}
+          <Link href="/login" className="text-primary hover:underline font-semibold transition-colors duration-200">
+            Sign in
+          </Link>
+        </p>
+        <p className="text-sm text-muted-foreground text-center">
+          <Link href="/" className="text-primary hover:underline font-semibold transition-colors duration-200">
+            Home
+          </Link>
+        </p>
+      </CardFooter>
+    </Card>
   );
 };
 

@@ -43,10 +43,6 @@ export function OrganizationList({ onAdd, onEdit, onView }: {
             className="pl-8 w-[300px]"
           />
         </div>
-        <Button onClick={onAdd}>
-          <PlusCircle className="mr-2 h-4 w-4" />
-          Add Organization
-        </Button>
       </div>
       <Table>
         <TableHeader>

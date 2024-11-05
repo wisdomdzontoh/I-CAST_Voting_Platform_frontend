@@ -1,150 +1,246 @@
-import { useState, useEffect } from 'react';
-import { Button } from "../../components/ui/button";
-import { Input } from "../../components/ui/input";
-import { Label } from "../../components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select";
-import { cn } from "@/lib/utils";
-import { fetchSubscriptionPlans } from '../../services/api';
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
+import * as z from "zod"
+import { useState } from "react"
+import { Button } from "../../components/ui/button"
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../../components/ui/form"
+import { Input } from "../../components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../../components/ui/select"
+import { Card, CardContent } from "../../components/ui/card"
+
+const formSchema = z.object({
+  name: z.string().min(2, {
+    message: "Organization name must be at least 2 characters.",
+  }),
+  organization_type: z.string().min(1, {
+    message: "Please select an organization type.",
+  }),
+  email: z.string().email({
+    message: "Please enter a valid email address.",
+  }),
+  address: z.string().min(5, {
+    message: "Address must be at least 5 characters.",
+  }),
+  phone_number: z.string().optional(),
+  website: z.string().url().optional().or(z.literal("")),
+  domain: z.string().url().optional().or(z.literal("")),
+  logo: z.any().optional(),
+  subscription_plan: z.string().optional(),
+})
+
+type FormValues = z.infer<typeof formSchema>
 
 interface OrganizationFormProps {
-  organization?: {
-    id: string;
-    name: string;
-    organization_type: string;
-    email: string;
-    address: string;
-    phone_number: string;
-    website: string;
-    domain: string;
-    logo?: string;
-    subscription_plan: string | null;
-  };
-  onSubmit: (data: FormData) => void;
-  onCancel: () => void;
+  onSubmit: (data: FormValues) => void
+  initialData?: Partial<FormValues>
 }
 
-export function OrganizationForm({ organization, onSubmit, onCancel }: OrganizationFormProps) {
-  const [formData, setFormData] = useState({
-    name: '',
-    organization_type: '',
-    email: '',
-    address: '',
-    phone_number: '',
-    website: '',
-    domain: '',
-    logo: null,
-    subscription_plan: ''
-  });
+export function OrganizationForm({ onSubmit, initialData = {} }: OrganizationFormProps) {
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      organization_type: "",
+      email: "",
+      address: "",
+      phone_number: "",
+      website: "",
+      domain: "",
+      subscription_plan: "",
+      ...initialData,
+    },
+  })
 
-  const [subscriptionPlans, setSubscriptionPlans] = useState<{ id: string; name: string }[]>([]);
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (organization) {
-      setFormData({
-        name: organization.name,
-        organization_type: organization.organization_type,
-        email: organization.email,
-        address: organization.address,
-        phone_number: organization.phone_number,
-        website: organization.website,
-        domain: organization.domain,
-        logo: organization.logo || null,
-        subscription_plan: organization.subscription_plan || ''
-      });
-    }
-  }, [organization]);
-
-  useEffect(() => {
-    const fetchPlans = async () => {
-      try {
-        const plans = await fetchSubscriptionPlans();
-        setSubscriptionPlans(plans);
-      } catch (error) {
-        console.error('Error fetching subscription plans:', error);
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files ? event.target.files[0] : null
+    if (file) {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string)
       }
-    };
-    fetchPlans();
-  }, []);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files) {
-      setFormData(prev => ({ ...prev, logo: e.target.files[0] }));
+      reader.readAsDataURL(file)
+      form.setValue("logo", file)
+    } else {
+      setImagePreview(null)
     }
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const submitData = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
-      if (value) {
-        submitData.append(key, value);
-      }
-    });
-    onSubmit(submitData);
-  };
-
-  const FormField = ({ name, label, type = "text", ...props }: { name: string; label: string; type?: string; [key: string]: any }) => (
-    <div className="flex flex-col space-y-1.5">
-      <Label htmlFor={name}>{label}</Label>
-      <Input id={name} name={name} type={type} value={formData[name]} onChange={handleChange} {...props} />
-    </div>
-  );
+  }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <FormField name="name" label="Organization Name" required />
-        
-        <div className="flex flex-col space-y-1.5">
-          <Label htmlFor="organization_type">Type</Label>
-          <Select name="organization_type" value={formData.organization_type} onValueChange={(value) => setFormData(prev => ({ ...prev, organization_type: value }))}>
-            <SelectTrigger id="organization_type">
-              <SelectValue placeholder="Select organization type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Corporation">Corporation</SelectItem>
-              <SelectItem value="Educational">Educational</SelectItem>
-              <SelectItem value="Non-Profit">Non-Profit</SelectItem>
-              <SelectItem value="Technology">Technology</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <Card>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Organization Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter organization name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="organization_type"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Organization Type</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select organization type" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="corporation">Corporation</SelectItem>
+                        <SelectItem value="non-profit">Non-Profit</SelectItem>
+                        <SelectItem value="government">Government</SelectItem>
+                        <SelectItem value="educational">Educational</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input type="email" placeholder="Enter email address" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="phone_number"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Phone Number</FormLabel>
+                    <FormControl>
+                      <Input type="tel" placeholder="Enter phone number" {...field} />
+                    </FormControl>
+                    <FormDescription>Optional</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="website"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Website</FormLabel>
+                    <FormControl>
+                      <Input type="url" placeholder="Enter website URL" {...field} />
+                    </FormControl>
+                    <FormDescription>Optional</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="domain"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Domain</FormLabel>
+                    <FormControl>
+                      <Input type="url" placeholder="Enter domain URL" {...field} />
+                    </FormControl>
+                    <FormDescription>Optional</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+          </CardContent>
+        </Card>
 
-        <FormField name="email" label="Email" type="email" required />
-        <FormField name="address" label="Address" required />
-        <FormField name="phone_number" label="Phone Number" />
-        <FormField name="website" label="Website" type="url" />
-        <FormField name="domain" label="Domain" type="url" />
+        <Card>
+          <CardContent className="pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem className="col-span-full">
+                    <FormLabel>Address</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Enter address" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="subscription_plan"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subscription Plan</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select subscription plan" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="free">Free</SelectItem>
+                        <SelectItem value="basic">Basic</SelectItem>
+                        <SelectItem value="premium">Premium</SelectItem>
+                        <SelectItem value="enterprise">Enterprise</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>Optional</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <div className="flex flex-col md:flex-row md:items-center gap-4">
+                <FormField
+                  control={form.control}
+                  name="logo"
+                  render={() => (
+                    <FormItem className="flex-1">
+                      <FormLabel>Logo</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileChange}
+                        />
+                      </FormControl>
+                      <FormDescription>Upload your organization logo (optional)</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {imagePreview && (
+                  <div className="flex-shrink-0">
+                    <h3 className="text-lg font-semibold mb-2">Logo Preview</h3>
+                    <img src={imagePreview} alt="Logo Preview" className="w-32 h-25 object-cover border rounded p-3" />
+                  </div>
+                )}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
 
-        <div className="flex flex-col space-y-1.5">
-          <Label htmlFor="logo">Logo</Label>
-          <Input id="logo" name="logo" type="file" onChange={handleFileChange} className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100" />
-        </div>
-
-        <div className="flex flex-col space-y-1.5">
-          <Label htmlFor="subscription_plan">Subscription Plan</Label>
-          <Select name="subscription_plan" value={formData.subscription_plan} onValueChange={(value) => setFormData(prev => ({ ...prev, subscription_plan: value }))}>
-            <SelectTrigger id="subscription_plan">
-              <SelectValue placeholder="Select subscription plan" />
-            </SelectTrigger>
-            <SelectContent>
-              {subscriptionPlans.map(plan => (
-                <SelectItem key={plan.id} value={plan.id}>{plan.name}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      </div>
-
-      <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline" onClick={onCancel}>Cancel</Button>
-        <Button type="submit">Submit</Button>
-      </div>
-    </form>
-  );
+        <Button type="submit" className="w-full">Submit</Button>
+      </form>
+    </Form>
+  )
 }

@@ -66,6 +66,11 @@ const LoginForm = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
+          <div className="text-right">
+              <Link href="/forgot-password" className="text-sm text-blue-600 hover:underline">
+                <p className="text-sm text-muted-foreground text-center">Forgot Password?</p>
+              </Link>
+            </div>
           {error && (
             <Alert variant="destructive">
               <AlertDescription>{error}</AlertDescription>
@@ -83,18 +88,18 @@ const LoginForm = () => {
           </Button>
         </form>
       </CardContent>
-      <CardFooter className="flex justify-center">
-        <p className="text-sm text-muted-foreground">
-          Don't have an account?{' '}
-          <Link href="/register" className="text-primary hover:underline">
+      <CardFooter className="flex flex-col items-center space-y-2">
+        <p className="text-sm text-muted-foreground text-center">
+          Already have an account?{' '}
+          <Link href="/register" className="text-primary hover:underline font-semibold transition-colors duration-200">
             Sign up
           </Link>
-          <br/>
-          <Link href="/" className="text-primary hover:underline">
+        </p>
+        <p className="text-sm text-muted-foreground text-center">
+          <Link href="/" className="text-primary hover:underline font-semibold transition-colors duration-200">
             Home
           </Link>
         </p>
-        
       </CardFooter>
     </Card>
   );

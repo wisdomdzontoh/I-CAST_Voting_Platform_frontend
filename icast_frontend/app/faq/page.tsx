@@ -52,6 +52,26 @@ const faqData: FaqItem[] = [
     question: "Can I use I-CAST for my organization's elections?",
     answer: "Yes, I-CAST Online Voting can be customized for various types of elections and organizations. Contact our sales team for more information.",
     category: "Services"
+  },
+  {
+    question: "What devices can I use to access I-CAST Online Voting?",
+    answer: "I-CAST Online Voting is accessible on all modern devices, including desktops, laptops, tablets, and smartphones.",
+    category: "General"
+  },
+  {
+    question: "What support resources are available?",
+    answer: "We provide a comprehensive help center, FAQs, and dedicated support via email and chat to assist users.",
+    category: "Support"
+  },
+  {
+    question: "How do I reset my password?",
+    answer: "To reset your password, click on the 'Forgot Password?' link on the login page and follow the instructions sent to your email.",
+    category: "Account"
+  },
+  {
+    question: "Are there any fees associated with using I-CAST?",
+    answer: "I-CAST offers various pricing plans based on the services required. Please contact our sales team for detailed pricing information.",
+    category: "Services"
   }
 ];
 

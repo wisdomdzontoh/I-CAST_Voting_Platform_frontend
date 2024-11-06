@@ -1,5 +1,5 @@
 'use client'
-
+import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
@@ -52,9 +52,15 @@ export function Header({ toggleSidebar }: { toggleSidebar: () => void }) {
           <Button variant="ghost" size="icon" className="md:hidden" onClick={toggleSidebar} aria-label="Toggle sidebar">
             <Menu className="h-5 w-5" />
           </Button>
-          <Link href="/dashboard" className="flex items-center space-x-2">
-            <span className="hidden md:inline-block text-xl font-bold">I-CAST VOTING</span>
-            <span className="inline-block md:hidden text-xl font-bold">I-CAST</span>
+          <Link href="/" className="flex items-center space-x-2">
+            <Image
+              src="/images/logo.png?height=40&width=40"
+              alt="I-CAST Logo"
+              width={40}
+              height={40}
+              className="rounded-full"
+            />
+            <span className='text-2xl font-bold'>I-CAST ONLINE VOTING</span>
           </Link>
         </div>
 

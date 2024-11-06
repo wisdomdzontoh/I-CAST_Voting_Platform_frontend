@@ -1,20 +1,24 @@
+import apiService from "@/app/services/api"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "../ui/dialog"
 import { OrganizationForm } from "./organization-form"
 
 export function EditOrganizationModal({ isOpen, onClose, organization }) {
-  const handleSubmit = (data) => {
-    console.log("Updating organization:", data);
-    // Implement API call to update organization
-    onClose();
-  };
+  const handleEditOrganization = async (data) => {
+    try {
+      await apiService.updateOrganization(organization.id, data)
+      onClose()
+    } catch (error) {
+      console.error("Failed to edit organization:", error)
+    }
+  }
 
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={onClose} title="Edit Organization">
       <DialogContent className="sm:max-w-[1000px]">
         <DialogHeader>
           <DialogTitle>Edit Organization</DialogTitle>
         </DialogHeader>
-        <OrganizationForm onSubmit={handleSubmit} initialData={organization} />
+        <OrganizationForm onSubmit={handleEditOrganization} initialData={organization} />
       </DialogContent>
     </Dialog>
   );

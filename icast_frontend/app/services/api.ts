@@ -173,8 +173,8 @@ export const deleteOrganization = async (id: number) => {
   return response.data;
 };
 
-// List all Organizations
-export const listOrganizations = async () => {
+// Fetch Organizations
+export const FetchOrganization = async () => {
   const response = await api.get(`/organizations/`);
   return response.data;
 };
@@ -189,7 +189,7 @@ export const fetchSubscriptionPlans = async () => {
 const apiService = {
   login,
   logout,
-  listOrganizations,
+  FetchOrganization,
   createOrganization,
   deleteOrganization,
   updateOrganization,

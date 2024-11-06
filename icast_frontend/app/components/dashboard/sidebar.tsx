@@ -4,32 +4,13 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { cn } from "@/lib/utils"
-import { Button } from "../ui/button"
-import { ScrollArea } from "../ui/scroll-area"
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "../ui/tooltip"
-import {
-  Menu,
-  Home,
-  Users,
-  ClipboardCheck,
-  FileText,
-  Settings,
-  Bell,
-  BarChart2,
-  MessageSquare,
-  HelpCircle,
-  ShieldCheck,
-  List,
-  Sun,
-  Moon,
-  Building,
-  Vote,
-  UserCheck,
-  Award,
-  Inbox,
-  AlertTriangle,
-  FileBarChart,
-  Activity
+import { Button } from "@/app/components/ui/button"
+import { ScrollArea } from "@/app/components/ui/scroll-area"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/app/components/ui/tooltip"
+import { 
+  Menu, Home, Users, ClipboardCheck, FileText, Settings, Bell, BarChart2, 
+  MessageSquare, HelpCircle, ShieldCheck, List, Sun, Moon, Building, Vote, 
+  UserCheck, Award, Inbox, AlertTriangle, FileBarChart, Activity 
 } from 'lucide-react'
 
 const sidebarLinks = [
@@ -70,15 +51,16 @@ export function Sidebar() {
   return (
     <div className={cn(
       "flex flex-col h-screen border-r transition-all duration-300",
-      "bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100",
+      "bg-background text-foreground",
       isOpen ? "w-64" : "w-[70px]"
     )}>
-      <div className="p-4 flex justify-between items-center border-b">
+      <div className="p-4 flex justify-between items-center border-b border-border">
         <Button variant="ghost" size="icon" onClick={toggleSidebar} aria-label="Toggle sidebar">
           <Menu className="h-6 w-6" />
         </Button>
         {isOpen && <h2 className="text-2xl font-semibold">I-CAST</h2>}
       </div>
+      
       <ScrollArea className="flex-1 mt-2">
         <nav className="space-y-1 px-2">
           {sidebarLinks.map((link) => (
@@ -107,7 +89,8 @@ export function Sidebar() {
           ))}
         </nav>
       </ScrollArea>
-      <div className="p-4 border-t">
+      
+      <div className="p-4 border-t border-border">
         <Button variant="ghost" size="sm" onClick={toggleTheme} className="w-full justify-start">
           {isDarkMode ? (
             <>
